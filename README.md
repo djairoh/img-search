@@ -26,6 +26,18 @@ mv ./target/release/
 
 see `img_search --help` for more info.
 
+# Config
+Configuration is handled by Confy, 
+but you can probably find the config file at '~/.config/img-search/default_config.toml'
+
+The only thing you need to change is the 'api_key' field:
+supply your own SauceNAO api key here.
+
+The other available fields are:
+ * num_results: how many max results to return for each query 
+ * min_similarity: what the minimum similarity is for each returned result
+ * rust_log: what level of logging to write to stdout
+
 # Documentation
 Standard Rustdoc documentation effort.
 Compile with `cargo doc --open`.
