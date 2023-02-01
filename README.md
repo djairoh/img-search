@@ -18,6 +18,7 @@ After feh closes, the program removes any temp files automatically.
 You know the drill:
 ```shell
 git clone https://github.com/djairoh/img-search
+cd ./img-search
 cargo build --release
 mv ./target/release/
 ./img_search <FILE> [DIR]
