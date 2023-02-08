@@ -17,7 +17,7 @@ mod cli;
 /// arguments:
 /// path: Option<PathBuf> - if Some, removes the given path, assumed to be a directory
 /// files: Option<Vec<PathBuf>> - if Some, removes the files in the vec
-fn cleanup(path: Option<PathBuf>, files: Option<Vec<PathBuf>>) {
+fn cleanup(path: Option<&PathBuf>, files: Option<Vec<&PathBuf>>) {
     if let Some(files) = files {
         debug!("Removing {} file(s).", files.len());
         for file in files {
@@ -59,15 +59,15 @@ fn main() {
         .build();
 
     //get sauce
-    let query = handle.get_sauce(args.file.to_str().expect("a"), None, None);
+    let query = handle.get_sauce(args.file.to_str().expect(""), None, None);
     if let Err(e) = query {
-        error!("Query failed: {}", e.to_string());
-        cleanup(Some(args.dir.clone()),None);
+        error!("Query failed: {}", e.kind());
+        cleanup(Some(&args.dir),None);
         exit(1);
     }
 
     //download thumbnails for sauce
-    let downloaded_images = image_download::download_images(query.unwrap(), args.dir.clone());
+    let downloaded_images = image_download::download_images(query.unwrap(), &args.dir);
     for image in downloaded_images.iter() {
         println!("{}", image.display());
     }
@@ -83,5 +83,5 @@ fn main() {
         .output();
 
     //remove temp files/folder
-    cleanup(Some(args.dir.clone()), Some(downloaded_images));
+    cleanup(Some(&args.dir), Some(downloaded_images.iter().map(|s| &*s).collect()));
 }

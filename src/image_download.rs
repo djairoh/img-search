@@ -10,18 +10,18 @@ use std::borrow::Borrow;
 ///
 /// arguments:
 /// url: String - the url to download the image from
-/// name: String - what to title the file
-/// dir: PathBuf - where to download the file to
+/// name: &String - what to title the file
+/// dir: &PathBuf - where to download the file to
 ///
 /// returns:
 /// ExitStatus - the result of the curl command
-fn download_image(url: String, name: String, dir: PathBuf) -> ExitStatus {
+fn download_image(url: String, name: &String, dir: &PathBuf) -> ExitStatus {
     info!("Downloading '{}' as '{}'.", url, name);
     if let Ok(out) = Command::new("/usr/bin/curl")
         .args(vec!["-X", "GET"])
         .arg(url)
         .args(vec!["-H", "accept: image/*"])
-        .args(vec!["-o".to_string(), name])
+        .args(vec!["-o".to_string(), name.to_string()])
         .current_dir(dir)
         .stdout(Stdio::piped())
         .output() {
@@ -36,11 +36,11 @@ fn download_image(url: String, name: String, dir: PathBuf) -> ExitStatus {
 ///
 /// arguments:
 /// result: Vec<Sauce> - a vector of sauces
-/// dir: PathBuf - path to download images to
+/// dir: &PathBuf - path to download images to
 ///
 /// returns:
-/// A vector of PathBufs, indicating the downloaded thumbnails
-pub fn download_images(result: Vec<Sauce>, dir: PathBuf) -> Vec<PathBuf> {
+/// A vector of &PathBufs, indicating the downloaded thumbnails
+pub fn download_images(result: Vec<Sauce>, dir: &PathBuf) -> Vec<PathBuf> {
     info!("Downloading at most {} image(s).", result.len());
     let mut i: u16 = 0;
     let mut out: Vec<PathBuf> = Vec::new();
@@ -52,7 +52,7 @@ pub fn download_images(result: Vec<Sauce>, dir: PathBuf) -> Vec<PathBuf> {
             let prop = fields.get("material").unwrap_or(null.borrow()).as_str().unwrap();
             let name = format!("{}: {}_{}", prop, char, i);
 
-            if download_image(res.thumbnail, name.clone(), dir.clone()).success() {
+            if download_image(res.thumbnail, &name, dir).success() {
                 out.push(dir.join(name));
             }
             i = i + 1;

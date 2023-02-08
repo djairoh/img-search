@@ -22,11 +22,11 @@ pub struct Cli {
 /// This function checks if a given file is an image
 ///
 /// arguments:
-/// path: PathBuf - path to the file to check
+/// path: &PathBuf - path to the file to check
 ///
 /// returns:
 /// boolean indicating if file is an image or not
-fn is_image(path: PathBuf) -> bool {
+fn is_image(path: &PathBuf) -> bool {
     let ext = path.extension();
     match ext {
         Some(ext) => {
@@ -43,11 +43,11 @@ fn is_image(path: PathBuf) -> bool {
 /// This function checks if a given file exists
 ///
 /// arguments:
-/// path: PathBuf - path to the file to check
+/// path: &PathBuf - path to the file to check
 ///
 /// returns:
 /// boolean indicating if the file exists or not
-fn file_exists(path: PathBuf) -> bool {
+fn file_exists(path: &PathBuf) -> bool {
     match path.try_exists() {
         Ok(bool) => bool,
         Err(e) => {
@@ -57,19 +57,18 @@ fn file_exists(path: PathBuf) -> bool {
     }
 }
 
-/// This function checks if a given file is an image.
-/// It also takes care of error output if not.
+/// This function checks if the given flags are valid input
 ///
-/// arguments:
-/// path: PathBuf - path to the file to check
+/// Arguments:
+/// args: Cli - the command line flags to be checked
 pub fn check_input(args: &mut Cli) {
     //fixme: rebase this whole thing
-    if !file_exists(args.file.clone()) {
+    if !file_exists(&args.file) {
         error!("Input file \"{}\" does not exist!", args.file.display());
         exit(1);
     }
 
-    if !is_image(args.file.clone()) {
+    if !is_image(&args.file) {
         error!("Input file \"{}\" is not an image!", args.file.display());
         exit(1);
     }
@@ -85,7 +84,7 @@ pub fn check_input(args: &mut Cli) {
         }
     }
 
-    if file_exists(args.dir.clone()) && args.dir.is_file() {
+    if file_exists(&args.dir) && args.dir.is_file() {
         error!("Input directory exists as a file!");
         exit(1);
     }
@@ -94,7 +93,7 @@ pub fn check_input(args: &mut Cli) {
         error!("Input directory \"{}\" already exists!", args.dir.display());
         exit(1);
     } else {
-        if let Err(e) =  fs::create_dir_all(args.dir.clone()) {
+        if let Err(e) =  fs::create_dir_all(&args.dir) {
             error!("Failed to create directory \"{}\": {}", args.dir.display(), e.to_string());
             exit(1);
         }
@@ -106,7 +105,7 @@ pub fn check_input(args: &mut Cli) {
             Ok(p) => args.dir = p,
             Err(e) => {
                 error!("Failed to canonicalize directory: {}.", e.to_string());
-                crate::cleanup(Some(args.dir.clone()), None);
+                crate::cleanup(Some(&args.dir), None);
                 exit(1);
             }
         }
